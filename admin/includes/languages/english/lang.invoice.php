@@ -14,7 +14,7 @@ $define = [
     'TEXT_INFO_ATTRIBUTE_FREE' => '&nbsp;-&nbsp;FREE',
     'TITLE_INVOICE' => 'Tax Invoice',
     'IMAGE_ON_INVOICE_IMAGE_WIDTH' => '50',
-    'IMAGE_ON_INVOICE_IMAGE_SHOW' => False, //BMH addition
+    //'IMAGE_ON_INVOICE_IMAGE_SHOW' => False, //BMH addition
 ];
 
 return $define;

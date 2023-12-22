@@ -1,4 +1,9 @@
 # aupost - additional settings
+#2023-12-23
+altered invoice to display pckup if no delivery address 
+constants use \admin\includes\extra_datafiles\dist-site_specific_admin_overrides.php
+so only available for zen cart 1.5.8+
+
 # 2023-04-29
  extra changes to improve zc if posting in Australia
  

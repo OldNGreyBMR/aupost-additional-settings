@@ -10,6 +10,8 @@
 //                  ln406 widen comment fields line
 //                  ln121  move decision for show customer from ln94 to allow folding of invoice
 //                  ln21 check IMAGE_ON_INVOICE_IMAGE_SHOW to switch images
+//     2023-12-23   remove image check refer to admin\includes\extra_datafiles\dist-site_specific_admin_overrides.php
+//                  check address for pickup
  //
 require('includes/application_top.php');
 // To override the $show_* or $attr_img_width values, see
@@ -19,13 +21,6 @@ $show_attrib_images =  $show_attrib_images ?? true;
 $attr_img_width = $attr_img_width ?? '25';
 $show_product_tax = $show_product_tax ?? true;
 
-// BMH
-if (!defined('IMAGE_ON_INVOICE_IMAGE_SHOW')) {  //BMH defined in lang.invoice.php
-    $show_product_images = False;
-    }
-else {
-    $show_product_images = IMAGE_ON_INVOICE_IMAGE_SHOW;
-} //BMH end
 if (!isset($show_attrib_images)) {
     $show_attrib_images = true;
 }
@@ -56,14 +51,19 @@ foreach ($orders_status as $order_status) {
   );
   $orders_status_array[$order_status['orders_status_id']] = $order_status['orders_status_name'];
 }
-
+$pickup = false; //BMH
 $show_customer = false;
-if ($order->billing['name'] != $order->delivery['name']) {
+if ($order->billing['name'] != isset($order->delivery['name'] ) ) {
   $show_customer = true;
 }
-if ($order->billing['street_address'] != $order->delivery['street_address']) {
+if ($order->billing['street_address'] != isset($order->delivery['street_address']) ) {
   $show_customer = true;
 }
+// BMH
+if (($order->billing['street_address'] != isset($order->delivery['street_address'])) && ($order->billing['name'] != isset($order->delivery['name'])) ) {
+    $show_customer = false; // PICKUP
+    $pickup = true;
+} //BMH
 ?>
 <!doctype html>
 <html <?php echo HTML_PARAMS; ?>>
@@ -124,7 +124,16 @@ if ($order->billing['street_address'] != $order->delivery['street_address']) {
           <td style="border: none">
             <table>
               <tr> <td class="main-ship-name"><b><?php echo ENTRY_SHIP_TO; ?></b></td> </tr>
-              <tr> <td class="main-ship-name"><?php echo zen_address_format($order->delivery['format_id'], $order->delivery, 1 , '', '<br>' ); ?></td> </tr>
+              <tr> <td class="main-ship-name"><?php
+              if ($pickup != true){
+                  echo zen_address_format($order->delivery['format_id'], $order->delivery, 1 , '', '<br>' );
+              }
+              else {
+                  echo 'PICKUP'. '<br>' ;
+              }
+              ?>
+
+              </td> </tr>
             </table>
           </td>
         </tr>
@@ -222,7 +231,7 @@ if ($order->billing['street_address'] != $order->delivery['street_address']) {
           //   'NOTIFY_ADMIN_INVOICE_DATA_AFTER_TAX' notification.
           //
           $extra_headings = false;
-          $zco_notifier->notify('NOTIFY_ADMIN_INVOIVE_HEADERS_AFTER_TAX', '', $extra_headings);
+          $zco_notifier->notify('NOTIFY_ADMIN_INVOICE_HEADERS_AFTER_TAX', '', $extra_headings);
           if (is_array($extra_headings)) {
               foreach ($extra_headings as $heading_info) {
                   $align = (isset($heading_info['align'])) ? (' text-' . $heading_info['align']) : '';
